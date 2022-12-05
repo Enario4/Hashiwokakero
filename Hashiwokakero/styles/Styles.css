@@ -1,0 +1,23 @@
+.container{
+    display: flex;
+    background-color: #A34DF8;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.intro{
+    color: #c9c9c9;
+    text-align: center;
+}
+
+.button{
+    background-color: #c9c9c9;
+    padding: 20em;
+    border-radius: 5em;
+}
+
+.buttonText {
+    font-size: 20em;
+    color: #A34DF8;
+}
