@@ -13,7 +13,7 @@ const Home = function({navigation}) {
                 Bienvenue dans l'application de résolution du jeu Hashiwokakero 
             </Text>
             <StatusBar style="auto" />
-            <TouchableOpacity onPress={() =>navigation.navigate('Photo')} style={styles.button}>
+            <TouchableOpacity onPress={() =>navigation.navigate('Photo')} style={styles.homeButton}>
                 <Text style={styles.buttonText}>Commencer</Text>
             </TouchableOpacity>
       </View>
@@ -39,5 +39,9 @@ const styles = StyleSheet.create({
         width:"100%",
         justifyContent: 'center',
         position:'relative',
+    },
+    buttonText: {
+        fontSize: 20,
+        color: 'black',
     },
   });

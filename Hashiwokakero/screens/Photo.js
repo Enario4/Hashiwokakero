@@ -9,6 +9,7 @@ import { Camera } from "expo-camera";
 import { captureRef } from 'react-native-view-shot';
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
+const validateButtonSize = Math.floor(WINDOW_HEIGHT * 0.04);
 const captureSize = Math.floor(WINDOW_HEIGHT * 0.09);
 
 
@@ -17,6 +18,7 @@ const Photo = function({navigation}) {
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
     const [isPreview, setIsPreview] = useState(false);
     const [isCameraReady, setIsCameraReady] = useState(false);
+    const [photo, setPhoto] = useState(null);
     const cameraRef = useRef();
     useEffect(() => {
         (async () => {
@@ -41,6 +43,7 @@ const Photo = function({navigation}) {
         if (cameraRef.current) {
           const options = { quality: 1, base64: true, skipProcessing: true };
           const data = await cameraRef.current.takePictureAsync(options);
+          setPhoto(data);
           const source = data.uri;
           if (source) {
             await cameraRef.current.pausePreview();
@@ -54,13 +57,26 @@ const Photo = function({navigation}) {
         setIsPreview(false);
       };
       const renderCancelPreviewButton = () => (
-        <TouchableOpacity onPress={cancelPreview} style={styles.closeButton}>
-          <View style={[styles.closeCross, { transform: [{ rotate: "45deg" }] }]} />
-          <View
-            style={[styles.closeCross, { transform: [{ rotate: "-45deg" }] }]}
-          />
+        <View style={styles.control}>
+        <TouchableOpacity onPress={cancelPreview} >
+        <Text style={styles.buttonText}> {"Reprendre la photo"} </Text>
         </TouchableOpacity>
+        <TouchableOpacity onPress={sendPhoto} >
+          <Text style={styles.buttonText}> {"Valider"} </Text>
+        </TouchableOpacity>
+        </View>
       );
+      
+      const sendPhoto = async () => {
+        // The post request to send to the orchestrator
+        console.log("sending Photo");
+        fetch('http://localhost:5252/solving/upload-image', {
+          method: 'POST',
+          body: JSON.stringify({
+          image: photo.base64,
+          }),
+        });
+      };
       const renderCaptureControl = () => (
         <View style={styles.control}>
           <TouchableOpacity disabled={!isCameraReady} onPress={switchCamera}>
@@ -113,7 +129,25 @@ const styles = StyleSheet.create({
     left: 15,
     height: closeButtonSize,
     width: closeButtonSize,
-    borderRadius: Math.floor(closeButtonSize / 2),
+    borderRadius: Math.floor(closeButtonSize),
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#c4c5c4",
+    opacity: 0.7,
+    zIndex: 2,
+  },
+  
+  buttonText: {
+    fontSize: 15,
+    color: '#87CEEB',
+  },
+  validateButton: {
+    position: "absolute",
+    top: 35,
+    right: 15,
+    height: validateButtonSize,
+    width: validateButtonSize,
+    borderRadius: Math.floor(validateButtonSize),
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#c4c5c4",
