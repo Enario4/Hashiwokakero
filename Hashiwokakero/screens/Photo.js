@@ -6,13 +6,16 @@ import { App } from '../App.js';
 //import styles from '../Styles.css';
 import React, { useState, useRef, useEffect } from "react";
 import { Camera } from "expo-camera";
+import {decode as atob, encode as btoa} from 'base-64'
+import { ImageManipulator } from 'expo-image-manipulator';
+
 import { captureRef } from 'react-native-view-shot';
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
 const validateButtonSize = Math.floor(WINDOW_HEIGHT * 0.04);
 const captureSize = Math.floor(WINDOW_HEIGHT * 0.09);
 
-
+// sudo ./mvnw spring-boot:run lancer orchestrator dans la vm, cd ~/Documents/orchestrator
 const Photo = function({navigation}) {
     const [hasPermission, setHasPermission] = useState(null);
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
@@ -69,14 +72,37 @@ const Photo = function({navigation}) {
       
       const sendPhoto = async () => {
         // The post request to send to the orchestrator
-        console.log("sending Photo");
-        fetch('http://localhost:5252/solving/upload-image', {
+        const resizedImage = await ImageManipulator.manipulateAsync(photo.uri, [{ resize: { width: 800, height: 600 } }]);
+          const formData = new FormData();
+          formData.append('image', {
+            uri: photo.uri,
+            type: 'image/jpeg',
+            name: 'photo.jpg'
+          });
+        // console.log("sending Photo");
+        // daForm = new FormData();
+        // daForm.append('image', atob(photo.base64));
+          fetch('http://localhost:5252/solving/upload-image', {
           method: 'POST',
-          body: JSON.stringify({
-          image: photo.base64,
-          }),
+          body: formData
+          })
+          .then(response => {
+            if (response.ok) {
+              // Successful request
+              return response.json();
+            } else {
+              // Request failed
+              console.log('Request failed with status code:', response.status);
+            }
+          })
+          .then(responseBody => {
+            // Use the response body here
+            console.log(responseBody);
+          });
+        })
+        .catch(err => {
+          console.log(err);
         });
-      };
       const renderCaptureControl = () => (
         <View style={styles.control}>
           <TouchableOpacity disabled={!isCameraReady} onPress={switchCamera}>
