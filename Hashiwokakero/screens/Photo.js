@@ -2,12 +2,11 @@ import {StatusBar} from 'expo-status-bar';
 import {StyleSheet, Text, SafeAreaView, ScrollView, Dimensions, View, TouchableOpacity} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import {GridLoader} from 'react-spinners/ClipLoader';
-import { App } from '../App.js';
 //import styles from '../Styles.css';
 import React, { useState, useRef, useEffect } from "react";
 import { Camera } from "expo-camera";
-import {decode as atob, encode as btoa} from 'base-64'
-import { ImageManipulator } from 'expo-image-manipulator';
+import {decode as atob, encode as btoa} from 'base-64';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 import { captureRef } from 'react-native-view-shot';
 const WINDOW_HEIGHT = Dimensions.get("window").height;
@@ -72,19 +71,32 @@ const Photo = function({navigation}) {
       
       const sendPhoto = async () => {
         // The post request to send to the orchestrator
-        const resizedImage = await ImageManipulator.manipulateAsync(photo.uri, [{ resize: { width: 800, height: 600 } }]);
-          const formData = new FormData();
-          formData.append('image', {
+        // ImageManipulator.manipulateAsync(photo.uri, [], options).then((result) => {
+        //   const compressedImage = result;})
+        // try {
+        //   const resizedImage = await manipulateAsync(photo.uri, [{resize: {height: 500}}],{compress: 1,base64: true });
+        //   setPhoto(resizedImage)
+        // }
+        // catch(e){
+        //   console.log("le manipulator d'image foire",e)
+        // }
+          // const formData = new FormData();
+          // 
+         console.log("sending Photo");
+         const daForm = new FormData();
+         //daForm.append('image', atob(photo.base64));
+         daForm.append('image', {
             uri: photo.uri,
             type: 'image/jpeg',
-            name: 'photo.jpg'
+            name: 'image.jpg'
           });
-        // console.log("sending Photo");
-        // daForm = new FormData();
-        // daForm.append('image', atob(photo.base64));
-          fetch('http://localhost:5252/solving/upload-image', {
+         console.log("daform : ",daForm);
+          fetch('http://127.0.0.1:5252/solving/upload-image', {
           method: 'POST',
-          body: formData
+          body: daForm
+          // headers: {
+          //   'Content-Type': 'multipart/form-data',
+          // },
           })
           .then(response => {
             if (response.ok) {
@@ -94,19 +106,15 @@ const Photo = function({navigation}) {
               // Request failed
               console.log('Request failed with status code:', response.status);
             }
-          })
-          .then(responseBody => {
-            // Use the response body here
-            console.log(responseBody);
-          });
-        })
-        .catch(err => {
-          console.log(err);
-        });
+           })
+          // .catch(err => {
+          //   console.log(err);
+          // })
+        };
       const renderCaptureControl = () => (
         <View style={styles.control}>
-          <TouchableOpacity disabled={!isCameraReady} onPress={switchCamera}>
-            <Text style={styles.text}>{"Flip"}</Text>
+          <TouchableOpacity disabled={!isCameraReady} onPress={switchCamera} style={styles.flipButton}>
+            <Text style={styles.buttonText}>{"Flip"}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.7}
@@ -145,6 +153,7 @@ const Photo = function({navigation}) {
 }
 
 export {Photo};
+
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
@@ -162,10 +171,20 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     zIndex: 2,
   },
-  
+  flipButton: {
+    backgroundColor: "#f5f6f5",
+    marginLeft: -50,
+    width: "15%",
+    height: "50%",
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    borderWidth: 5,
+    borderColor: '#87CFFF',
+},
   buttonText: {
     fontSize: 15,
-    color: '#87CEEB',
+    color: '#87CFFF',
   },
   validateButton: {
     position: "absolute",
@@ -198,7 +217,8 @@ const styles = StyleSheet.create({
   },
   capture: {
     backgroundColor: "#f5f6f5",
-    borderRadius: 5,
+    borderWidth: 3,
+    borderColor: '#87CFFF',
     height: captureSize,
     width: captureSize,
     borderRadius: Math.floor(captureSize / 2),
