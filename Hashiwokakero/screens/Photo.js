@@ -60,31 +60,17 @@ const Photo = function({navigation}) {
       };
       const renderCancelPreviewButton = () => (
         <View style={styles.control}>
-        <TouchableOpacity onPress={cancelPreview} >
+        <TouchableOpacity onPress={cancelPreview} style={styles.retakeButton} >
         <Text style={styles.buttonText}> {"Reprendre la photo"} </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={sendPhoto} >
+        <TouchableOpacity onPress={sendPhoto} style={styles.validateButton}>
           <Text style={styles.buttonText}> {"Valider"} </Text>
         </TouchableOpacity>
         </View>
       );
       
       const sendPhoto = async () => {
-        // The post request to send to the orchestrator
-        // ImageManipulator.manipulateAsync(photo.uri, [], options).then((result) => {
-        //   const compressedImage = result;})
-        // try {
-        //   const resizedImage = await manipulateAsync(photo.uri, [{resize: {height: 500}}],{compress: 1,base64: true });
-        //   setPhoto(resizedImage)
-        // }
-        // catch(e){
-        //   console.log("le manipulator d'image foire",e)
-        // }
-          // const formData = new FormData();
-          // 
-         console.log("sending Photo");
          const daForm = new FormData();
-         //daForm.append('image', atob(photo.base64));
          daForm.append('image', {
             uri: photo.uri,
             type: 'image/jpeg',
@@ -93,23 +79,25 @@ const Photo = function({navigation}) {
          console.log("daform : ",daForm);
           fetch('http://127.0.0.1:5252/solving/upload-image', {
           method: 'POST',
-          body: daForm
-          // headers: {
-          //   'Content-Type': 'multipart/form-data',
-          // },
+          body: daForm,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
           })
           .then(response => {
             if (response.ok) {
               // Successful request
-              return response.json();
+              console.log("réponse  : ",response);
+              return response;
             } else {
               // Request failed
               console.log('Request failed with status code:', response.status);
             }
            })
-          // .catch(err => {
-          //   console.log(err);
-          // })
+          .catch(err => {
+            console.log("erreur dans la page photo",err);
+          })
+          navigation.navigate('Loading');
         };
       const renderCaptureControl = () => (
         <View style={styles.control}>
@@ -181,23 +169,31 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 5,
     borderColor: '#87CFFF',
-},
+  },
+  retakeButton: {
+    backgroundColor: "#f5f6f5",
+    width: "50%",
+    height: "100%",
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    borderWidth: 5,
+    borderColor: '#87CFFF',
+  },
+  validateButton: {
+    backgroundColor: "#f5f6f5",
+    marginLeft: 20,
+    width: "25%",
+    height: "100%",
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    borderWidth: 5,
+    borderColor: '#87CFFF',
+  },
   buttonText: {
     fontSize: 15,
     color: '#87CFFF',
-  },
-  validateButton: {
-    position: "absolute",
-    top: 35,
-    right: 15,
-    height: validateButtonSize,
-    width: validateButtonSize,
-    borderRadius: Math.floor(validateButtonSize),
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#c4c5c4",
-    opacity: 0.7,
-    zIndex: 2,
   },
   media: {
     ...StyleSheet.absoluteFillObject,
