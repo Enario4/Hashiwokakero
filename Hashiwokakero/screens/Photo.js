@@ -1,28 +1,22 @@
-import {StatusBar} from 'expo-status-bar';
-import ImagePicker from 'expo-image-picker';
 import {StyleSheet, Text, SafeAreaView, ScrollView, Dimensions, View, TouchableOpacity} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import {GridLoader} from 'react-spinners/ClipLoader';
 //import styles from '../Styles.css';
 import React, { useState, useRef, useEffect } from "react";
 import { Camera } from "expo-camera";
-import {decode as atob, encode as btoa} from 'base-64';
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
-import { captureRef } from 'react-native-view-shot';
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
 const validateButtonSize = Math.floor(WINDOW_HEIGHT * 0.04);
 const captureSize = Math.floor(WINDOW_HEIGHT * 0.09);
 
 // sudo ./mvnw spring-boot:run lancer orchestrator dans la vm, cd ~/Documents/orchestrator
-const Photo = function({navigation}) {
+const Photo = function({navigation, route}) {
     const [hasPermission, setHasPermission] = useState(null);
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
     const [isPreview, setIsPreview] = useState(false);
     const [isCameraReady, setIsCameraReady] = useState(false);
     const [photo, setPhoto] = useState(null);
     const cameraRef = useRef();
+    const gridSize = route.params;
     useEffect(() => {
         (async () => {
           const { status } = await Camera.requestCameraPermissionsAsync();
@@ -97,15 +91,15 @@ const Photo = function({navigation}) {
           .then(response => {
             if (response.ok) {
               // Successful request
-              console.log("réponse  : ",response);
+              console.log("réponse du post : ",JSON.stringify(response));
               navigation.navigate('Loading', {uuid: response._bodyBlob._data.blobId});
             } else {
               // Request failed
-              console.log('Request failed with status code:', response.status);
+              console.log('Request failed with status code:', JSON.stringify(response.status));
             }
            })
           .catch(err => {
-            console.log("erreur dans la page photo",err);
+            console.log("erreur dans la page photo",JSON.stringify(err));
           })
           
         };

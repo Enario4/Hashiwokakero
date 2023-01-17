@@ -1,71 +1,99 @@
-// import {StatusBar} from 'expo-status-bar';
-// import {StyleSheet, Text, View, SafeAreaView, ScrollView, ActivityIndicator} from 'react-native';
-// import {GridLoader} from 'react-spinners/ClipLoader';
-// //import styles from '../Styles.css';
+import {StyleSheet, Text, View, Image, ActivityIndicator} from 'react-native';
+import React, { useState, useRef, useEffect } from "react";
 
+const Loading = function({route}) {
+    const {uuid} = route.params;
+    const [isLoading, setIsLoading] = useState(true);
+    const [ImageUri, setImageUri] = useState(null);
 
-// const Loading = function() {
-//     return (
-//         <View style={styles.container}>
-//             <Text style={styles.intro} >
-//                Résolution en cours
-//             </Text>
-//         {/* <SafeAreaView style={styles.container}>
-//             <ScrollView style={styles.scrollview}> */}
-//                 <ActivityIndicator size='large' color="white" />
-//             {/* </ScrollView>
-//         </SafeAreaView>
-//          */}
-//       </View>
-//     );
-// }
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Image, ActivityIndicator } from 'react-native';
-
-const Loading = function({navigation}) {
-    const Loade = () => {
-        return (
+     useEffect(() => {
+        const uuidtest="624b92d2-4ecc-4bad-8c3d-4c0879be25a5";
+        fetch("http://192.168.37.171:50030/solving/"+uuidtest+"/result")
+          .then(response => {
+                if (!response.ok) {
+                    console.log("pas ok du tout", JSON.stringify(response));
+                } 
+                console.log(JSON.stringify(response))
+                console.log(JSON.stringify(response._bodyBlob._data.blobId))
+            //   const uri = URL.createObjectURL(response._bodyBlob);
+              setImageUri(response.url);
+              setIsLoading(false);
+            })
+            .catch(err => {
+                console.log("erreur", JSON.stringify(err.message))
+            })
+    })
+    
+        if (isLoading) {
+          return (
             <View style={styles.container}>
                 <Text style={styles.intro} >
-                Résolution en cours
+                    Résolution en cours
                 </Text>
                 <ActivityIndicator size='large' color="white" />
-            </View>
-        );
+             </View>
+          );
+        }
+    
+         return <Image source={{ uri: ImageUri }} />;
     }
 
-    const ImageScreen = () => {
-        const [imageUri, setImageUri] = useState(null);
-        const [isLoading, setIsLoading] = useState(true);
+    export {Loading};
 
-        const loadImage = async () => {
+// import React, { useState, useEffect } from 'react';
+// import { StyleSheet, View, Image, ActivityIndicator } from 'react-native';
+
+// const Loading = function({navigation}) {
+//     // const Loade = () => {
+//     //     return (
+                //<View style={styles.container}>
+                //     <Image source={{ uri: imageUri }} style={styles.image} />
+                // </View>
+//     //     );
+//     // }
+
+//     const ImageScreen = () => {
+//         const [imageUri, setImageUri] = useState(null);
+//         const [isLoading, setIsLoading] = useState(true);
+
+//         const loadImage = async () => {
            
-            const response = await fetch('http://192.168.37.71:50030/${uuid}/resultsolving'); // revoir adresse 
-            if (!response.ok) {
-                throw new Error(response.statusText);
-            }
-            const json = await response.json();
-            // assume that the json object has a property called "imageUri"
-            setImageUri(json.imageUri);
-            setIsLoading(false);
-        };
+//             fetch('http://192.168.37.71:50030/${uuid}/resultsolving')
+//             .then(response => {
+//                 if (response.ok) {
+//                   // Successful request
+//                   console.log("réponse  : ",response);
+//                   setImageUri(response.json().imageUri);
+//                   setIsLoading(false);
+//                 //   navigation.navigate('Loading', {uuid: response._bodyBlob._data.blobId});
+//                 } else {
+//                   // Request failed
+//                   console.log('Request failed with status code:', response.status);
+//                 }
+//                })
+//               .catch(err => {
+//                 console.log("erreur dans la page photo",err);
+//               })            
+//         };
 
-        useEffect(() => {
-            loadImage();
-        }, []);
+//         useEffect(() => {
+//             loadImage();
+//         }, []);
 
-        if (isLoading) {
-            return <Loade />;
-        }
+//         // if (isLoading) {
+//         //     return <Loade />;
+//         // }
 
-        return (
-            <View style={styles.container}>
-                <Image source={{ uri: imageUri }} style={styles.image} />
-            </View>
-        );
-    };
-}
-export {Loading};
+//         return (
+//             <View style={styles.container}>
+//             <Text style={styles.intro} >
+//             Résolution en cours
+//             </Text>
+//             <ActivityIndicator size='large' color="white" />
+//         </View>
+//         );
+//     };
+// }
 
 const styles = StyleSheet.create({
     container: {
