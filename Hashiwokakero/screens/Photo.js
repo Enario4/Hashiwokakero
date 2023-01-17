@@ -1,4 +1,5 @@
 import {StatusBar} from 'expo-status-bar';
+import ImagePicker from 'expo-image-picker';
 import {StyleSheet, Text, SafeAreaView, ScrollView, Dimensions, View, TouchableOpacity} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import {GridLoader} from 'react-spinners/ClipLoader';
@@ -31,7 +32,16 @@ const Photo = function({navigation}) {
       const onCameraReady = () => {
         setIsCameraReady(true);
       };
-      const switchCamera = () => {
+      // const Rogner = () => {
+      //   ImagePicker.openCropper({
+      //       path: photo.uri,
+      //       width: 300,
+      //       height: 400,
+      //       includeBase64: true,
+      //   }).then(image => {
+      //       setPhoto(image);
+      //   });
+      const Flip = () => {
         if (isPreview) {
           return;
         }
@@ -77,7 +87,7 @@ const Photo = function({navigation}) {
             name: 'image.jpg'
           });
          console.log("daform : ",daForm);
-          fetch('http://127.0.0.1:5252/solving/upload-image', {
+          fetch('http://192.168.37.171:50030/solving/upload-image', {
           method: 'POST',
           body: daForm,
           headers: {
@@ -88,7 +98,7 @@ const Photo = function({navigation}) {
             if (response.ok) {
               // Successful request
               console.log("réponse  : ",response);
-              return response;
+              navigation.navigate('Loading', {uuid: response._bodyBlob._data.blobId});
             } else {
               // Request failed
               console.log('Request failed with status code:', response.status);
@@ -97,11 +107,11 @@ const Photo = function({navigation}) {
           .catch(err => {
             console.log("erreur dans la page photo",err);
           })
-          navigation.navigate('Loading');
+          
         };
       const renderCaptureControl = () => (
         <View style={styles.control}>
-          <TouchableOpacity disabled={!isCameraReady} onPress={switchCamera} style={styles.flipButton}>
+          <TouchableOpacity disabled={!isCameraReady} onPress={Flip} style={styles.flipButton}>
             <Text style={styles.buttonText}>{"Flip"}</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -124,7 +134,7 @@ const Photo = function({navigation}) {
             ref={cameraRef}
             style={{flex: 1,width:"150%",height:"120%"}}
             type={cameraType}
-            flashMode={Camera.Constants.FlashMode.on}
+            flashMode={Camera.Constants.FlashMode.off}
             onCameraReady={onCameraReady}
             onMountError={(error) => {
             console.log("camera error", error);
