@@ -1,0 +1,59 @@
+import {StyleSheet, Text, View, Image, ActivityIndicator} from 'react-native';
+import React, { useState, useRef, useEffect } from "react";
+
+const Loading = function({route}) {
+    const {uuid} = route.params;
+    const [isLoading, setIsLoading] = useState(false);
+    const [ImageUri, setImageUri] = useState(null);
+
+     useEffect(() => {
+        const uuidtest="624b92d2-4ecc-4bad-8c3d-4c0879be25a5";
+        fetch("http://192.168.37.171:50030/solving/"+uuidtest+"/result")
+        .then(response => {
+            setImageUri("data:image/jpeg;," + response._bodyBlob._data.blobId);
+        })
+        .catch(err => {
+          console.log("erreur", JSON.stringify(err.message))
+        });
+  }); // Empty array to only run the effect once
+    
+        if (isLoading) {
+          return (
+            <View style={styles.container}>
+                <Text style={styles.intro} >
+                    Résolution en cours
+                </Text>
+                <ActivityIndicator size='large' color="white" />
+             </View>
+          );
+        } else {
+            return(
+                <Image source={{ uri: ImageUri }} />
+            )
+        }
+        
+    }
+    export {Loading};
+//simulate api (like mokkon but on phone)
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#87CFFF',
+        textAlign: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    intro: {
+        color: 'white',
+        fontSize: 25,
+        textAlign: 'center',
+        marginTop: 20,
+        padding: 20,
+    },
+    image: {
+        width: '100%',
+        height: '100%',
+    },
+  });
+
+  

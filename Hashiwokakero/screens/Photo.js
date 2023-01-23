@@ -26,15 +26,6 @@ const Photo = function({navigation, route}) {
       const onCameraReady = () => {
         setIsCameraReady(true);
       };
-      // const Rogner = () => {
-      //   ImagePicker.openCropper({
-      //       path: photo.uri,
-      //       width: 300,
-      //       height: 400,
-      //       includeBase64: true,
-      //   }).then(image => {
-      //       setPhoto(image);
-      //   });
       const Flip = () => {
         if (isPreview) {
           return;
@@ -81,7 +72,7 @@ const Photo = function({navigation, route}) {
             name: 'image.jpg'
           });
          console.log("daform : ",daForm);
-          fetch('http://192.168.37.171:50030/solving/upload-image', {
+          fetch('http://192.168.37.171:50030/solving/upload-image?size='+gridSize.gridSize, {
           method: 'POST',
           body: daForm,
           headers: {
@@ -89,15 +80,11 @@ const Photo = function({navigation, route}) {
           },
           })
           .then(response => {
-            if (response.ok) {
-              // Successful request
-              console.log("réponse du post : ",JSON.stringify(response));
-              navigation.navigate('Loading', {uuid: response._bodyBlob._data.blobId});
-            } else {
-              // Request failed
-              console.log('Request failed with status code:', JSON.stringify(response.status));
-            }
-           })
+            return response.text()
+          })
+          .then(response => {
+            navigation.navigate('Loading', {uuid: response});
+          })
           .catch(err => {
             console.log("erreur dans la page photo",JSON.stringify(err));
           })
@@ -146,6 +133,15 @@ const Photo = function({navigation, route}) {
 
 export {Photo};
 
+      // const Rogner = () => {
+      //   ImagePicker.openCropper({
+      //       path: photo.uri,
+      //       width: 300,
+      //       height: 400,
+      //       includeBase64: true,
+      //   }).then(image => {
+      //       setPhoto(image);
+      //   });
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
@@ -277,3 +273,90 @@ const styles = StyleSheet.create({
 //         borderRadius: 5
 //     },
 //   });
+
+/*import ReactCrop from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
+
+//...
+const [crop, setCrop] = useState({ unit: '%', width: 100, aspect: 1 });
+const [croppedImageUrl, setCroppedImageUrl] = useState(null);
+
+const onCropComplete = async (crop) => {
+    if (photo) {
+        const croppedImage = await getCroppedImg(photo.uri, crop);
+        setCroppedImageUrl(croppedImage);
+    }
+}
+
+const getCroppedImg = async (imageUrl, crop) => {
+    const canvas = document.createElement('canvas');
+    const img = document.createElement('img');
+
+    img.src = imageUrl;
+    canvas.width = crop.width;
+    canvas.height = crop.height;
+    const ctx = canvas.getContext('2d');
+
+    ctx.drawImage(
+        img,
+        crop.x,
+        crop.y,
+        crop.width,
+        crop.height,
+        0,
+        0,
+        crop.width,
+        crop.height
+    );
+
+    return canvas.toDataURL();
+}
+
+const renderCrop = () => (
+    <ReactCrop 
+        src={photo.uri} 
+        crop={crop}
+        onComplete={onCropComplete}
+        onChange={setCrop}
+    />
+);
+
+//...
+const sendPhoto = async () => {
+    if (croppedImageUrl) {
+        const daForm = new FormData();
+        daForm.append('image', {
+            uri: croppedImageUrl,
+            type: 'image/jpeg',
+            name: 'image.jpg'
+        });
+        console.log("daform : ",daForm);
+        fetch('http://192.168.37.171:50030/solving/upload-image', {
+            method: 'POST',
+            body: daForm,
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                // Successful request
+                console.log("réponse du post : ",JSON.stringify(response));
+                navigation.navigate('Loading', {uuid: response._bodyBlob._data.blobId});
+            } else {
+                // Request failed
+                console.log('Request failed with status code:', JSON.stringify(response.status));
+            }
+        })
+        .catch(err => {
+            console.log("error : ",err);
+        });
+    }
+};
+
+const renderCancelPreviewButton = () => (
+    <View style={styles.control}>
+    <TouchableOpacity onPress={cancelPreview} style={styles.retakeButton} >
+    <Text style={styles.buttonText}> {"Reprendre la photo"} </Text>
+    </Touchable
+ */
